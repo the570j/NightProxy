@@ -117,6 +117,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               redirectProtocol.get(redirectTargetUrl.toString(), (redirectResponse) => {
                 // Set appropriate content type
                 res.setHeader("Content-Type", redirectResponse.headers["content-type"] || "text/html");
+                // Add Content-Security-Policy to allow scripts to run
+                res.setHeader("Content-Security-Policy", "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline'");
                 
                 let redirectData = "";
                 redirectResponse.on("data", (chunk) => {
@@ -140,6 +142,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Set appropriate content type
         res.setHeader("Content-Type", response.headers["content-type"] || "text/html");
+        // Add Content-Security-Policy to allow scripts to run
+        res.setHeader("Content-Security-Policy", "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline'");
         
         let data = "";
         response.on("data", (chunk) => {

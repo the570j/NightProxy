@@ -325,11 +325,11 @@ export default function ProxyInterface() {
                       </div>
                     </div>
                     <div className="flex p-3 bg-black/20 rounded-lg border border-white/5">
-                      <div className="mr-3 text-yellow-400">
-                        <i className="fas fa-exclamation-triangle"></i>
+                      <div className="mr-3 text-green-400">
+                        <i className="fas fa-check-circle"></i>
                       </div>
                       <div className="text-sm text-gray-300">
-                        JavaScript and interactive features may be limited for security reasons.
+                        JavaScript is enabled for interactive website features and functionality.
                       </div>
                     </div>
                   </div>
@@ -357,7 +357,7 @@ export default function ProxyInterface() {
                     ref={iframeRef}
                     src={`/api/proxy?url=${encodeURIComponent(url.startsWith('http') ? url : `https://${url}`)}`}
                     className="w-full h-[500px] border-0 bg-white rounded-lg shadow-xl"
-                    sandbox="allow-same-origin allow-forms"
+                    sandbox="allow-same-origin allow-forms allow-scripts"
                     title="Proxied content"
                     loading="eager"
                   />
@@ -410,7 +410,7 @@ export default function ProxyInterface() {
                     <iframe 
                       src={`/api/proxy?url=${encodeURIComponent(url.startsWith('http') ? url : `https://${url}`)}`}
                       className="flex-1 border-0 bg-white w-full"
-                      sandbox="allow-same-origin allow-forms"
+                      sandbox="allow-same-origin allow-forms allow-scripts"
                       title="Fullscreen proxied content"
                       loading="eager"
                     />
