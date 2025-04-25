@@ -184,47 +184,74 @@ export default function ProxyInterface() {
           </button>
         </div>
         
-        <div className="mt-4 flex flex-wrap gap-2 justify-center">
-          <div className="text-sm text-gray-400 my-auto mr-2">Quick Access:</div>
-          <button 
-            type="button"
-            onClick={() => {
-              setUrl("blooketbot.glitch.me");
-              setHasSubmitted(true);
-              setLoading(true);
-              fetchWithApi("https://blooketbot.glitch.me");
-            }}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-medium hover:opacity-90 transition-all transform hover:scale-105 border border-white/10 shadow-lg"
-          >
-            <i className="fas fa-gamepad mr-2"></i>
-            Blooket Bot
-          </button>
-          <button 
-            type="button"
-            onClick={() => {
-              setUrl("example.com");
-              setHasSubmitted(true);
-              setLoading(true);
-              fetchWithApi("https://example.com");
-            }}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-teal-500 text-white text-sm font-medium hover:opacity-90 transition-all transform hover:scale-105 border border-white/10 shadow-lg"
-          >
-            <i className="fas fa-globe mr-2"></i>
-            Example Site
-          </button>
-          <button 
-            type="button"
-            onClick={() => {
-              setUrl("google.com");
-              setHasSubmitted(true);
-              setLoading(true);
-              fetchWithApi("https://google.com");
-            }}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-medium hover:opacity-90 transition-all transform hover:scale-105 border border-white/10 shadow-lg"
-          >
-            <i className="fas fa-search mr-2"></i>
-            Google
-          </button>
+        <div className="mt-6 mb-2">
+          <div className="text-center mb-2">
+            <span className="px-4 py-1 rounded-full bg-black/30 text-gray-300 text-sm font-medium border border-white/5">
+              <i className="fas fa-bolt text-space-accent mr-2"></i>
+              Quick Access Sites
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+            <button 
+              type="button"
+              onClick={() => {
+                setUrl("blooketbot.glitch.me");
+                setHasSubmitted(true);
+                setLoading(true);
+                fetchWithApi("https://blooketbot.glitch.me");
+              }}
+              className="relative overflow-hidden px-4 py-3 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-800 text-white text-sm font-medium hover:opacity-90 transition-all transform hover:scale-102 hover:shadow-[0_0_15px_rgba(124,58,237,0.5)] border border-purple-500/20 shadow-lg group"
+            >
+              <div className="absolute inset-0 flex items-center justify-center opacity-10 group-hover:opacity-20 transition-opacity">
+                <i className="fas fa-robot text-5xl transform -rotate-12"></i>
+              </div>
+              <div className="relative z-10 flex flex-col items-center">
+                <i className="fas fa-gamepad text-xl mb-1"></i>
+                <span>Blooket Bot</span>
+                <span className="text-xs text-purple-200 mt-1">Game Hacks & Tools</span>
+              </div>
+            </button>
+            
+            <button 
+              type="button"
+              onClick={() => {
+                setUrl("example.com");
+                setHasSubmitted(true);
+                setLoading(true);
+                fetchWithApi("https://example.com");
+              }}
+              className="relative overflow-hidden px-4 py-3 rounded-lg bg-gradient-to-br from-emerald-600 to-teal-800 text-white text-sm font-medium hover:opacity-90 transition-all transform hover:scale-102 hover:shadow-[0_0_15px_rgba(16,185,129,0.5)] border border-emerald-500/20 shadow-lg group"
+            >
+              <div className="absolute inset-0 flex items-center justify-center opacity-10 group-hover:opacity-20 transition-opacity">
+                <i className="fas fa-globe-americas text-5xl transform -rotate-12"></i>
+              </div>
+              <div className="relative z-10 flex flex-col items-center">
+                <i className="fas fa-globe text-xl mb-1"></i>
+                <span>Example Site</span>
+                <span className="text-xs text-emerald-200 mt-1">Test Connection</span>
+              </div>
+            </button>
+            
+            <button 
+              type="button"
+              onClick={() => {
+                setUrl("google.com");
+                setHasSubmitted(true);
+                setLoading(true);
+                fetchWithApi("https://google.com");
+              }}
+              className="relative overflow-hidden px-4 py-3 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-800 text-white text-sm font-medium hover:opacity-90 transition-all transform hover:scale-102 hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] border border-blue-500/20 shadow-lg group"
+            >
+              <div className="absolute inset-0 flex items-center justify-center opacity-10 group-hover:opacity-20 transition-opacity">
+                <i className="fas fa-search text-5xl transform -rotate-12"></i>
+              </div>
+              <div className="relative z-10 flex flex-col items-center">
+                <i className="fas fa-search text-xl mb-1"></i>
+                <span>Google</span>
+                <span className="text-xs text-blue-200 mt-1">Search Engine</span>
+              </div>
+            </button>
+          </div>
         </div>
       </form>
 
