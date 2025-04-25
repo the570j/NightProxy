@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export default function HeroSection() {
   const [showContent, setShowContent] = useState(false);
@@ -8,9 +8,19 @@ export default function HeroSection() {
   const [typingComplete, setTypingComplete] = useState(false);
   const [buttonsVisible, setButtonsVisible] = useState(false);
   
+  // Refs to maintain fixed heights for text containers
+  const heading1Ref = useRef<HTMLSpanElement>(null);
+  const heading2Ref = useRef<HTMLSpanElement>(null);
+  const descriptionRef = useRef<HTMLParagraphElement>(null);
+  
   const heading1 = "Navigate Beyond";
   const heading2 = "Boundaries";
   const description = "Experience the internet without restrictions. NightProxy provides secure, fast, and reliable proxy services to help you explore the digital universe freely.";
+  
+  // Only show one cursor at a time based on which text is currently being typed
+  const showHeading1Cursor = typedHeading1.length < heading1.length;
+  const showHeading2Cursor = !showHeading1Cursor && typedHeading2.length < heading2.length;
+  const showDescriptionCursor = !showHeading1Cursor && !showHeading2Cursor && typedDescription.length < description.length;
   
   useEffect(() => {
     // Start animation after a short delay when component mounts
@@ -54,9 +64,11 @@ export default function HeroSection() {
                   setButtonsVisible(true);
                 }, 300);
               }
-            }, 20); // Faster typing for description
+            }, 25); // Faster typing for description
           }
         }, 100); // Speed for heading2
+        
+        return () => clearInterval(heading2Timer);
       }
     }, 100); // Speed for heading1
     
@@ -71,19 +83,40 @@ export default function HeroSection() {
         <div className="flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-10 md:mb-0">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-poppins leading-tight">
-              <span className="block relative">
-                {typedHeading1}
-                <span className={`inline-block w-0.5 h-12 bg-white ${typedHeading1.length === heading1.length ? 'opacity-0' : 'animate-blink'}`}></span>
-              </span>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-space-accent to-space-highlight relative">
-                {typedHeading2}
-                <span className={`inline-block w-0.5 h-12 bg-gradient-to-r from-space-accent to-space-highlight ${typedHeading2.length === heading2.length ? 'opacity-0' : 'animate-blink'}`}></span>
-              </span>
+              {/* Fixed height container for first line */}
+              <div className="h-[5rem] sm:h-[3.5rem] md:h-[4rem] lg:h-[4.5rem] flex items-center">
+                <span ref={heading1Ref} className="block relative">
+                  {typedHeading1}
+                  {showHeading1Cursor && (
+                    <span className="inline-block w-0.5 h-12 bg-white animate-blink absolute"></span>
+                  )}
+                </span>
+              </div>
+              
+              {/* Fixed height container for second line */}
+              <div className="h-[5rem] sm:h-[3.5rem] md:h-[4rem] lg:h-[4.5rem] flex items-center">
+                <span 
+                  ref={heading2Ref} 
+                  className="bg-clip-text text-transparent bg-gradient-to-r from-space-accent to-space-highlight relative"
+                >
+                  {typedHeading2}
+                  {showHeading2Cursor && (
+                    <span className="inline-block w-0.5 h-12 bg-gradient-to-r from-space-accent to-space-highlight animate-blink absolute"></span>
+                  )}
+                </span>
+              </div>
             </h1>
-            <p className="text-lg mt-6 text-gray-300 max-w-lg relative">
-              {typedDescription}
-              <span className={`inline-block w-0.5 h-6 bg-gray-300 ${typedDescription.length === description.length ? 'opacity-0' : 'animate-blink'}`}></span>
-            </p>
+            
+            {/* Fixed height container for description */}
+            <div className="h-24 md:h-28 mt-6">
+              <p ref={descriptionRef} className="text-lg text-gray-300 max-w-lg relative">
+                {typedDescription}
+                {showDescriptionCursor && (
+                  <span className="inline-block w-0.5 h-6 bg-gray-300 animate-blink absolute"></span>
+                )}
+              </p>
+            </div>
+            
             <div 
               className={`mt-8 flex flex-wrap gap-4 transition-opacity duration-1000 ${buttonsVisible ? 'opacity-100' : 'opacity-0'}`}
             >

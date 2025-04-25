@@ -17,14 +17,14 @@ export default function NavBar() {
         <div className="container mx-auto flex justify-between items-center">
           {/* Logo and Brand */}
           <div className="flex items-center">
-            <div className="text-2xl font-bold font-poppins text-white flex items-center">
+            <a href="/" className="text-2xl font-bold font-poppins text-white flex items-center hover:opacity-80 transition-opacity">
               <span className="text-space-accent mr-2">
                 <i className="fas fa-rocket"></i>
               </span>
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-space-accent to-space-highlight">
                 NightProxy
               </span>
-            </div>
+            </a>
           </div>
 
           {/* Desktop Menu */}
