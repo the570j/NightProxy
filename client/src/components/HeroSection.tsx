@@ -50,7 +50,27 @@ export default function HeroSection() {
                       <feGaussianBlur stdDeviation="8" result="blur" />
                       <feComposite in="SourceGraphic" in2="blur" operator="over" />
                     </filter>
+                    
+                    {/* Rocket ship flame gradient */}
+                    <linearGradient id="flameGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#FDE68A" />
+                      <stop offset="70%" stopColor="#F97316" />
+                      <stop offset="100%" stopColor="#DC2626" />
+                    </linearGradient>
+                    
+                    {/* Animation for rocket orbit */}
+                    <animateTransform
+                      id="orbitAnimation"
+                      attributeName="transform"
+                      type="rotate"
+                      from="0 100 100"
+                      to="360 100 100"
+                      dur="20s"
+                      repeatCount="indefinite"
+                    />
                   </defs>
+                  
+                  {/* Moon */}
                   <circle cx="100" cy="100" r="90" fill="url(#moonGradient)" />
                   <circle cx="100" cy="100" r="90" fill="url(#moonShadow)" />
                   
@@ -64,6 +84,45 @@ export default function HeroSection() {
                   
                   {/* Subtle glow around the moon */}
                   <circle cx="100" cy="100" r="95" fill="none" stroke="#E2E8F0" strokeWidth="2" opacity="0.2" filter="url(#glow)" />
+                  
+                  {/* Orbital path (slightly visible circle) */}
+                  <circle cx="100" cy="100" r="120" fill="none" stroke="#E2E8F0" strokeWidth="1" strokeDasharray="2 3" opacity="0.2" />
+                  
+                  {/* Rocket Ship Group with animation */}
+                  <g>
+                    <animateTransform
+                      attributeName="transform"
+                      type="rotate"
+                      from="0 100 100"
+                      to="360 100 100"
+                      dur="15s"
+                      repeatCount="indefinite"
+                    />
+                    
+                    {/* Rocket at orbital position */}
+                    <g transform="translate(220, 100) rotate(90)">
+                      {/* Rocket body */}
+                      <path d="M0,0 L-4,10 L4,10 Z" fill="#F43F5E" />
+                      <rect x="-4" y="10" width="8" height="15" fill="#F43F5E" />
+                      
+                      {/* Rocket windows */}
+                      <circle cx="0" cy="15" r="2" fill="#E2E8F0" />
+                      
+                      {/* Rocket fins */}
+                      <path d="M-4,25 L-8,30 L-4,25 Z" fill="#F43F5E" />
+                      <path d="M4,25 L8,30 L4,25 Z" fill="#F43F5E" />
+                      
+                      {/* Rocket flame */}
+                      <path d="M-3,25 L0,35 L3,25 Z" fill="url(#flameGradient)">
+                        <animate
+                          attributeName="d"
+                          values="M-3,25 L0,32 L3,25 Z; M-3,25 L0,38 L3,25 Z; M-3,25 L0,32 L3,25 Z"
+                          dur="0.5s"
+                          repeatCount="indefinite"
+                        />
+                      </path>
+                    </g>
+                  </g>
                 </svg>
               </div>
             </div>
