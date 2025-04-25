@@ -192,7 +192,19 @@ export default function ProxyInterface() {
             >
               <div 
                 className="proxy-content" 
-                dangerouslySetInnerHTML={{ __html: pageContent }}
+                dangerouslySetInnerHTML={{ 
+                  __html: pageContent.replace(
+                    /<(script|link|img|iframe)[^>]+(src|href)="(?!(http|https):\/\/)/g, 
+                    (match, tag, attr) => {
+                      // Replace relative URLs with absolute URLs
+                      const baseUrl = new URL(url.startsWith('http') ? url : `https://${url}`);
+                      return match.replace(
+                        `${attr}="`, 
+                        `${attr}="${baseUrl.origin}/`
+                      );
+                    }
+                  ) 
+                }}
                 style={{ 
                   pointerEvents: 'none', // Disable interactions
                   color: 'black',

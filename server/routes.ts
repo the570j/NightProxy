@@ -22,8 +22,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Determine protocol to use
       const protocol = targetUrl.protocol === "https:" ? https : http;
       
-      // Forward the request
-      protocol.get(targetUrl.toString(), (response) => {
+      // Setup browser-like headers to avoid being detected as a bot
+      const options = {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.5',
+          'Referer': targetUrl.origin
+        }
+      };
+      
+      // Forward the request with browser-like headers
+      protocol.get(targetUrl.toString(), options, (response) => {
         // Check if we got redirected
         if (response.statusCode === 301 || response.statusCode === 302) {
           const redirectUrl = response.headers.location;
@@ -100,7 +110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Fetch the URL
           const protocol = url.startsWith('https') ? https : http;
           
-          const handleResponse = (response, originalUrl) => {
+          const handleResponse = (response: http.IncomingMessage, originalUrl: string) => {
             // Handle redirects
             if (response.statusCode === 301 || response.statusCode === 302) {
               const redirectUrl = response.headers.location;
@@ -141,8 +151,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Handle normal response
             let body = '';
             
-            response.on('data', (chunk) => {
-              body += chunk;
+            response.on('data', (chunk: Buffer) => {
+              body += chunk.toString();
             });
             
             response.on('end', () => {
@@ -158,7 +168,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
           };
           
-          protocol.get(url, (response) => {
+          // Setup browser-like headers
+          const options = {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.5',
+              'Referer': new URL(url).origin
+            }
+          };
+          
+          protocol.get(url, options, (response) => {
             handleResponse(response, url);
           }).on('error', (err) => {
             if (ws.readyState === ws.OPEN) {
