@@ -1,31 +1,102 @@
+import { useEffect, useState } from "react";
+
 export default function HeroSection() {
+  const [showContent, setShowContent] = useState(false);
+  const [typedHeading1, setTypedHeading1] = useState("");
+  const [typedHeading2, setTypedHeading2] = useState("");
+  const [typedDescription, setTypedDescription] = useState("");
+  const [typingComplete, setTypingComplete] = useState(false);
+  const [buttonsVisible, setButtonsVisible] = useState(false);
+  
+  const heading1 = "Navigate Beyond";
+  const heading2 = "Boundaries";
+  const description = "Experience the internet without restrictions. NightProxy provides secure, fast, and reliable proxy services to help you explore the digital universe freely.";
+  
+  useEffect(() => {
+    // Start animation after a short delay when component mounts
+    const timer = setTimeout(() => setShowContent(true), 500);
+    return () => clearTimeout(timer);
+  }, []);
+  
+  useEffect(() => {
+    if (!showContent) return;
+    
+    // Type the first heading
+    let currentIndex = 0;
+    const heading1Timer = setInterval(() => {
+      if (currentIndex <= heading1.length) {
+        setTypedHeading1(heading1.substring(0, currentIndex));
+        currentIndex++;
+      } else {
+        clearInterval(heading1Timer);
+        
+        // Start typing the second heading
+        let heading2Index = 0;
+        const heading2Timer = setInterval(() => {
+          if (heading2Index <= heading2.length) {
+            setTypedHeading2(heading2.substring(0, heading2Index));
+            heading2Index++;
+          } else {
+            clearInterval(heading2Timer);
+            
+            // Start typing the description
+            let descIndex = 0;
+            const descTimer = setInterval(() => {
+              if (descIndex <= description.length) {
+                setTypedDescription(description.substring(0, descIndex));
+                descIndex++;
+              } else {
+                clearInterval(descTimer);
+                setTypingComplete(true);
+                
+                // Show buttons after a short delay when typing is done
+                setTimeout(() => {
+                  setButtonsVisible(true);
+                }, 300);
+              }
+            }, 20); // Faster typing for description
+          }
+        }, 100); // Speed for heading2
+      }
+    }, 100); // Speed for heading1
+    
+    return () => {
+      clearInterval(heading1Timer);
+    };
+  }, [showContent]);
+  
   return (
     <section className="py-16 md:py-24">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-10 md:mb-0">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-poppins leading-tight">
-              <span className="block">Navigate Beyond</span>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-space-accent to-space-highlight">
-                Boundaries
+              <span className="block relative">
+                {typedHeading1}
+                <span className={`inline-block w-0.5 h-12 bg-white ${typedHeading1.length === heading1.length ? 'opacity-0' : 'animate-blink'}`}></span>
+              </span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-space-accent to-space-highlight relative">
+                {typedHeading2}
+                <span className={`inline-block w-0.5 h-12 bg-gradient-to-r from-space-accent to-space-highlight ${typedHeading2.length === heading2.length ? 'opacity-0' : 'animate-blink'}`}></span>
               </span>
             </h1>
-            <p className="text-lg mt-6 text-gray-300 max-w-lg">
-              Experience the internet without restrictions. NightProxy provides
-              secure, fast, and reliable proxy services to help you explore the
-              digital universe freely.
+            <p className="text-lg mt-6 text-gray-300 max-w-lg relative">
+              {typedDescription}
+              <span className={`inline-block w-0.5 h-6 bg-gray-300 ${typedDescription.length === description.length ? 'opacity-0' : 'animate-blink'}`}></span>
             </p>
-            <div className="mt-8 flex flex-wrap gap-4">
+            <div 
+              className={`mt-8 flex flex-wrap gap-4 transition-opacity duration-1000 ${buttonsVisible ? 'opacity-100' : 'opacity-0'}`}
+            >
               <a
                 href="#proxy"
-                className="bg-gradient-to-r from-space-accent to-space-highlight px-8 py-3 rounded-lg font-poppins font-medium hover:opacity-90 transition-opacity shadow-lg flex items-center"
+                className="bg-gradient-to-r from-space-accent to-space-highlight px-8 py-3 rounded-lg font-poppins font-medium hover:opacity-90 transition-all duration-300 shadow-lg flex items-center hover:scale-105 active:scale-95"
               >
                 <span>Launch Proxy</span>
                 <i className="fas fa-arrow-right ml-2"></i>
               </a>
               <a
                 href="#features"
-                className="px-8 py-3 rounded-lg font-poppins font-medium border border-white/20 hover:bg-white/10 transition-colors"
+                className="px-8 py-3 rounded-lg font-poppins font-medium border border-white/20 hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 Learn More
               </a>

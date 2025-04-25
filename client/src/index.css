@@ -132,6 +132,11 @@
   50% { transform: translateY(-20px); }
 }
 
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 /* Utility classes */
 .font-poppins {
   font-family: 'Poppins', sans-serif;
@@ -151,6 +156,10 @@
 
 .animate-pulse-slow {
   animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-blink {
+  animation: blink 0.8s ease-in-out infinite;
 }
 
 /* Smooth scrolling for the page */
