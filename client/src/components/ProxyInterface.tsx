@@ -1,4 +1,5 @@
 import { useState, useRef, FormEvent, useEffect } from "react";
+import { useLocation } from "wouter";
 
 export default function ProxyInterface() {
   const [url, setUrl] = useState<string>("");
@@ -7,11 +8,28 @@ export default function ProxyInterface() {
   const [pageContent, setPageContent] = useState<string>("");
   const [pageTitle, setPageTitle] = useState<string>("");
   const [wsConnected, setWsConnected] = useState<boolean>(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const formRef = useRef<HTMLFormElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
+  const [, navigate] = useLocation();
 
+  // Handle ESC key to exit fullscreen
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFullscreen]);
+  
   // Connect to WebSocket
   useEffect(() => {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -206,13 +224,58 @@ export default function ProxyInterface() {
                   </p>
                 </div>
                 
-                <iframe 
-                  src={`/api/proxy?url=${encodeURIComponent(url.startsWith('http') ? url : `https://${url}`)}`}
-                  className="w-full h-[500px] border-0 bg-white rounded-lg"
-                  sandbox="allow-same-origin allow-forms"
-                  title="Proxied content"
-                  loading="eager"
-                />
+                <div className="relative">
+                  <div className="absolute top-2 right-2 z-10 flex gap-2">
+                    <button 
+                      onClick={() => setIsFullscreen(true)}
+                      className="p-2 rounded bg-space-accent text-white hover:bg-space-highlight transition-colors"
+                      title="View in fullscreen"
+                    >
+                      <i className="fas fa-expand"></i>
+                    </button>
+                    <button 
+                      onClick={() => window.open(`/api/proxy?url=${encodeURIComponent(url.startsWith('http') ? url : `https://${url}`)}`, '_blank')}
+                      className="p-2 rounded bg-space-accent text-white hover:bg-space-highlight transition-colors"
+                      title="Open in new tab"
+                    >
+                      <i className="fas fa-external-link-alt"></i>
+                    </button>
+                  </div>
+                  
+                  <iframe 
+                    ref={iframeRef}
+                    src={`/api/proxy?url=${encodeURIComponent(url.startsWith('http') ? url : `https://${url}`)}`}
+                    className="w-full h-[500px] border-0 bg-white rounded-lg"
+                    sandbox="allow-same-origin allow-forms"
+                    title="Proxied content"
+                    loading="eager"
+                  />
+                </div>
+                
+                {isFullscreen && (
+                  <div className="fixed inset-0 z-50 bg-black flex flex-col">
+                    <div className="flex justify-between items-center p-4 bg-space-deep">
+                      <div className="flex items-center">
+                        <i className="fas fa-lock text-green-400 mr-2"></i>
+                        <span className="text-white">{url}</span>
+                      </div>
+                      <button 
+                        onClick={() => setIsFullscreen(false)}
+                        className="p-2 rounded bg-space-accent text-white hover:bg-space-highlight transition-colors"
+                      >
+                        <i className="fas fa-compress mr-2"></i>
+                        Exit Fullscreen
+                      </button>
+                    </div>
+                    <iframe 
+                      src={`/api/proxy?url=${encodeURIComponent(url.startsWith('http') ? url : `https://${url}`)}`}
+                      className="flex-1 border-0 bg-white w-full"
+                      sandbox="allow-same-origin allow-forms"
+                      title="Fullscreen proxied content"
+                      loading="eager"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
