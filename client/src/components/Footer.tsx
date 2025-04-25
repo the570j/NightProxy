@@ -64,7 +64,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="#proxy"
+                  href="/proxy"
                   className="hover:text-space-accent transition-colors"
                 >
                   Launch Proxy

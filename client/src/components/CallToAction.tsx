@@ -20,7 +20,7 @@ export default function CallToAction() {
               digital universe.
             </p>
             <a
-              href="https://github.com/NightProxy/Space"
+              href="/proxy"
               className="inline-block bg-gradient-to-r from-space-accent to-space-highlight px-8 py-4 rounded-lg font-poppins font-medium text-lg hover:opacity-90 transition-opacity shadow-lg"
             >
               <i className="fas fa-rocket mr-2"></i> Launch Proxy Now

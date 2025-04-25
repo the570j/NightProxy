@@ -48,7 +48,7 @@ export default function NavBar() {
               Support
             </a>
             <a
-              href="#proxy"
+              href="/proxy"
               className="bg-gradient-to-r from-space-accent to-space-highlight px-5 py-2 rounded-lg font-poppins font-medium hover:opacity-90 transition-opacity shadow-lg"
             >
               Launch Proxy
@@ -95,7 +95,7 @@ export default function NavBar() {
               Support
             </a>
             <a
-              href="#proxy"
+              href="/proxy"
               className="bg-gradient-to-r from-space-accent to-space-highlight px-5 py-2 rounded-lg font-poppins font-medium hover:opacity-90 transition-opacity shadow-lg text-center"
               onClick={closeMobileMenu}
             >
