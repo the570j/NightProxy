@@ -188,124 +188,32 @@ export default function ProxyInterface() {
             </div>
             <div 
               ref={contentRef}
-              className="p-4 bg-white text-black h-full overflow-auto"
+              className="p-4 bg-space-deep text-white h-full overflow-auto"
             >
-              <div 
-                className="proxy-content" 
-                dangerouslySetInnerHTML={{ 
-                  __html: pageContent
-                    // Fix relative URLs to absolute
-                    .replace(
-                      /<(script|link|img|iframe|source)[^>]+(src|href)="(?!\/\/|http|https|data:|blob:)([^"]+)"/g, 
-                      (match, tag, attr, path) => {
-                        // Replace relative URLs with absolute URLs
-                        const baseUrl = new URL(url.startsWith('http') ? url : `https://${url}`);
-                        return match.replace(
-                          `${attr}="${path}"`, 
-                          `${attr}="${baseUrl.origin}/${path.startsWith('/') ? path.slice(1) : path}"`
-                        );
-                      }
-                    )
-                    // Fix URLs with double slashes but no protocol (//example.com/image.jpg)
-                    .replace(
-                      /<(script|link|img|iframe|source)[^>]+(src|href)="\/\/([^"]+)"/g,
-                      (match, tag, attr, path) => {
-                        return match.replace(
-                          `${attr}="//${path}"`,
-                          `${attr}="https://${path}"`
-                        );
-                      }
-                    )
-                    // Proxy all complete URLs through our proxy-resource endpoint
-                    .replace(
-                      /<(img|script|link|iframe|source)[^>]+(src|href|srcset)="(https?:\/\/[^"]+)"/g,
-                      (match, tag, attr, fullUrl) => {
-                        // Don't proxy data: URLs
-                        if (fullUrl.startsWith('data:')) return match;
-                        return match.replace(
-                          `${attr}="${fullUrl}"`,
-                          `${attr}="/api/proxy-resource?url=${encodeURIComponent(fullUrl)}"`
-                        );
-                      }
-                    )
-                    // Handle specific YouTube-style delayed loading patterns
-                    .replace(
-                      /<img[^>]+(data-src|data-thumb|data-image|data-thumbnail)="(https?:\/\/[^"]+)"/g,
-                      (match, dataAttr, dataUrl) => {
-                        return match
-                          .replace(
-                            `${dataAttr}="${dataUrl}"`,
-                            `${dataAttr}="/api/proxy-resource?url=${encodeURIComponent(dataUrl)}" src="/api/proxy-resource?url=${encodeURIComponent(dataUrl)}"`
-                          );
-                      }
-                    )
-                    // Handle YouTube specific image patterns
-                    .replace(
-                      /<yt-img-shadow[^>]*><img[^>]*><\/yt-img-shadow>/g,
-                      (match) => {
-                        // Extract any data-* attributes with URLs
-                        const dataUrlMatch = match.match(/data-[^=]+=["'](https?:\/\/[^"']+)["']/);
-                        if (dataUrlMatch && dataUrlMatch[1]) {
-                          const imgUrl = dataUrlMatch[1];
-                          return match.replace(
-                            /<img[^>]*>/, 
-                            `<img src="/api/proxy-resource?url=${encodeURIComponent(imgUrl)}" style="width:100%;height:100%;">`
-                          );
-                        }
-                        return match;
-                      }
-                    )
-                    // Handle common lazy loading patterns
-                    .replace(
-                      /<img[^>]+loading="lazy"[^>]*>/g,
-                      (match) => {
-                        return match.replace('loading="lazy"', '');
-                      }
-                    )
-                    // Proxy all background images in inline styles
-                    .replace(
-                      /background(-image)?:\s*url\(['"]?(https?:\/\/[^'"\)]+)['"]?\)/g,
-                      (match, prop, url) => {
-                        return match.replace(
-                          url,
-                          `/api/proxy-resource?url=${encodeURIComponent(url)}`
-                        );
-                      }
-                    )
-                    // Handle src attributes in style tags
-                    .replace(
-                      /<style[^>]*>([\s\S]*?)<\/style>/gi,
-                      (match, styleContent) => {
-                        // Replace URLs in the style content
-                        const fixedStyle = styleContent.replace(
-                          /url\(['"]?(https?:\/\/[^'"\)]+)['"]?\)/g,
-                          (match, url) => {
-                            return match.replace(
-                              url,
-                              `/api/proxy-resource?url=${encodeURIComponent(url)}`
-                            );
-                          }
-                        );
-                        return `<style>${fixedStyle}</style>`;
-                      }
-                    )
-                    // Handle inline style attributes
-                    .replace(
-                      /style="([^"]*)url\(['"]?(https?:\/\/[^'"\)]+)['"]?\)([^"]*)"/g,
-                      (match, beforeUrl, url, afterUrl) => {
-                        return match.replace(
-                          url,
-                          `/api/proxy-resource?url=${encodeURIComponent(url)}`
-                        );
-                      }
-                    )
-                }}
-                style={{ 
-                  pointerEvents: 'none', // Disable interactions
-                  color: 'black',
-                  backgroundColor: 'white'
-                }}
-              />
+              <div className="proxy-content">
+                <div className="proxy-explanation p-4 mb-4 bg-blue-600/20 rounded-lg">
+                  <h3 className="text-xl font-semibold mb-2 text-white">About This Proxy</h3>
+                  <p className="mb-2 text-gray-300">
+                    You're viewing content from <strong>{url}</strong> through our proxy service.
+                  </p>
+                  <p className="mb-2 text-gray-300">
+                    <i className="fas fa-info-circle mr-2 text-blue-400"></i>
+                    Modern websites like YouTube use advanced security measures that limit how content can be displayed in a proxy.
+                  </p>
+                  <p className="text-gray-300">
+                    <i className="fas fa-exclamation-triangle mr-2 text-yellow-400"></i>
+                    Javascript and interactive features might be limited for security reasons.
+                  </p>
+                </div>
+                
+                <iframe 
+                  src={`/api/proxy?url=${encodeURIComponent(url.startsWith('http') ? url : `https://${url}`)}`}
+                  className="w-full h-[500px] border-0 bg-white rounded-lg"
+                  sandbox="allow-same-origin allow-forms"
+                  title="Proxied content"
+                  loading="eager"
+                />
+              </div>
             </div>
           </div>
         ) : (
