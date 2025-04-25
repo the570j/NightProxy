@@ -1,0 +1,20 @@
+{
+  "install": {
+    "include": [
+      "^package\\.json$"
+    ],
+    "exclude": [],
+    "exec": "npm install"
+  },
+  "restart": {
+    "include": [
+      "^server/",
+      "^\\.env$"
+    ],
+    "exclude": [
+      "node_modules/"
+    ],
+    "exec": "npm run dev"
+  },
+  "throttle": 1000
+}

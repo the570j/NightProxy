@@ -1,0 +1,23 @@
+{
+  "install": "npm install",
+  "start": "npm run dev",
+  "watch": {
+    "ignore": [
+      "\\.git",
+      "node_modules/**/node_modules"
+    ],
+    "install": {
+      "include": [
+        "^package\\.json$",
+        "^\\.env$"
+      ]
+    },
+    "restart": {
+      "include": [
+        "^server/",
+        "^client/"
+      ]
+    },
+    "throttle": 1000
+  }
+}
