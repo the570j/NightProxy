@@ -218,7 +218,7 @@ export default function ProxyInterface() {
                     )
                     // Proxy all complete URLs through our proxy-resource endpoint
                     .replace(
-                      /<(img|script|link|iframe|source)[^>]+(src|href)="(https?:\/\/[^"]+)"/g,
+                      /<(img|script|link|iframe|source)[^>]+(src|href|srcset)="(https?:\/\/[^"]+)"/g,
                       (match, tag, attr, fullUrl) => {
                         // Don't proxy data: URLs
                         if (fullUrl.startsWith('data:')) return match;
@@ -228,10 +228,71 @@ export default function ProxyInterface() {
                         );
                       }
                     )
-                    // Proxy all background images
+                    // Handle specific YouTube-style delayed loading patterns
+                    .replace(
+                      /<img[^>]+(data-src|data-thumb|data-image|data-thumbnail)="(https?:\/\/[^"]+)"/g,
+                      (match, dataAttr, dataUrl) => {
+                        return match
+                          .replace(
+                            `${dataAttr}="${dataUrl}"`,
+                            `${dataAttr}="/api/proxy-resource?url=${encodeURIComponent(dataUrl)}" src="/api/proxy-resource?url=${encodeURIComponent(dataUrl)}"`
+                          );
+                      }
+                    )
+                    // Handle YouTube specific image patterns
+                    .replace(
+                      /<yt-img-shadow[^>]*><img[^>]*><\/yt-img-shadow>/g,
+                      (match) => {
+                        // Extract any data-* attributes with URLs
+                        const dataUrlMatch = match.match(/data-[^=]+=["'](https?:\/\/[^"']+)["']/);
+                        if (dataUrlMatch && dataUrlMatch[1]) {
+                          const imgUrl = dataUrlMatch[1];
+                          return match.replace(
+                            /<img[^>]*>/, 
+                            `<img src="/api/proxy-resource?url=${encodeURIComponent(imgUrl)}" style="width:100%;height:100%;">`
+                          );
+                        }
+                        return match;
+                      }
+                    )
+                    // Handle common lazy loading patterns
+                    .replace(
+                      /<img[^>]+loading="lazy"[^>]*>/g,
+                      (match) => {
+                        return match.replace('loading="lazy"', '');
+                      }
+                    )
+                    // Proxy all background images in inline styles
                     .replace(
                       /background(-image)?:\s*url\(['"]?(https?:\/\/[^'"\)]+)['"]?\)/g,
                       (match, prop, url) => {
+                        return match.replace(
+                          url,
+                          `/api/proxy-resource?url=${encodeURIComponent(url)}`
+                        );
+                      }
+                    )
+                    // Handle src attributes in style tags
+                    .replace(
+                      /<style[^>]*>([\s\S]*?)<\/style>/gi,
+                      (match, styleContent) => {
+                        // Replace URLs in the style content
+                        const fixedStyle = styleContent.replace(
+                          /url\(['"]?(https?:\/\/[^'"\)]+)['"]?\)/g,
+                          (match, url) => {
+                            return match.replace(
+                              url,
+                              `/api/proxy-resource?url=${encodeURIComponent(url)}`
+                            );
+                          }
+                        );
+                        return `<style>${fixedStyle}</style>`;
+                      }
+                    )
+                    // Handle inline style attributes
+                    .replace(
+                      /style="([^"]*)url\(['"]?(https?:\/\/[^'"\)]+)['"]?\)([^"]*)"/g,
+                      (match, beforeUrl, url, afterUrl) => {
                         return match.replace(
                           url,
                           `/api/proxy-resource?url=${encodeURIComponent(url)}`
