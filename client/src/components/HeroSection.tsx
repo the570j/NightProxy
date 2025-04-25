@@ -37,28 +37,33 @@ export default function HeroSection() {
               <div className="relative z-10 rounded-full w-64 h-64 md:w-80 md:h-80 overflow-hidden border-4 border-white/20 shadow-2xl">
                 <svg viewBox="0 0 200 200" className="w-full h-full">
                   <defs>
-                    <linearGradient id="earthGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#1E40AF" />
-                      <stop offset="50%" stopColor="#3B82F6" />
-                      <stop offset="100%" stopColor="#60A5FA" />
+                    <linearGradient id="moonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#94A3B8" />
+                      <stop offset="50%" stopColor="#CBD5E1" />
+                      <stop offset="100%" stopColor="#E2E8F0" />
                     </linearGradient>
-                    <radialGradient id="earthShadow" cx="30%" cy="30%" r="70%" fx="30%" fy="30%">
-                      <stop offset="0%" stopColor="#60A5FA" stopOpacity="0.8" />
-                      <stop offset="100%" stopColor="#1E3A8A" stopOpacity="1" />
+                    <radialGradient id="moonShadow" cx="30%" cy="30%" r="70%" fx="30%" fy="30%">
+                      <stop offset="0%" stopColor="#E2E8F0" stopOpacity="0.8" />
+                      <stop offset="100%" stopColor="#64748B" stopOpacity="1" />
                     </radialGradient>
+                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feGaussianBlur stdDeviation="8" result="blur" />
+                      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
                   </defs>
-                  <circle cx="100" cy="100" r="90" fill="url(#earthGradient)" />
-                  <circle cx="100" cy="100" r="90" fill="url(#earthShadow)" />
+                  <circle cx="100" cy="100" r="90" fill="url(#moonGradient)" />
+                  <circle cx="100" cy="100" r="90" fill="url(#moonShadow)" />
                   
-                  {/* Continents */}
-                  <path d="M70,40 Q90,30 110,45 T140,60 Q130,90 100,95 T50,85 Q60,60 70,40" fill="#4ADE80" opacity="0.8" />
-                  <path d="M130,120 Q150,100 170,130 T150,160 Q120,170 110,150 T130,120" fill="#4ADE80" opacity="0.8" />
-                  <path d="M40,100 Q60,90 80,110 T70,140 Q50,150 30,130 T40,100" fill="#4ADE80" opacity="0.8" />
+                  {/* Moon craters */}
+                  <circle cx="70" cy="60" r="15" fill="#94A3B8" opacity="0.4" />
+                  <circle cx="130" cy="90" r="20" fill="#94A3B8" opacity="0.4" />
+                  <circle cx="80" cy="130" r="12" fill="#94A3B8" opacity="0.4" />
+                  <circle cx="40" cy="100" r="10" fill="#94A3B8" opacity="0.3" />
+                  <circle cx="160" cy="60" r="8" fill="#94A3B8" opacity="0.3" />
+                  <circle cx="150" cy="140" r="15" fill="#94A3B8" opacity="0.3" />
                   
-                  {/* Clouds */}
-                  <ellipse cx="60" cy="50" rx="20" ry="10" fill="white" opacity="0.5" />
-                  <ellipse cx="140" cy="80" rx="25" ry="12" fill="white" opacity="0.5" />
-                  <ellipse cx="90" cy="140" rx="18" ry="9" fill="white" opacity="0.5" />
+                  {/* Subtle glow around the moon */}
+                  <circle cx="100" cy="100" r="95" fill="none" stroke="#E2E8F0" strokeWidth="2" opacity="0.2" filter="url(#glow)" />
                 </svg>
               </div>
             </div>
