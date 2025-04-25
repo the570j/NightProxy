@@ -26,10 +26,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       protocol.get(targetUrl.toString(), (response) => {
         // Check if we got redirected
         if (response.statusCode === 301 || response.statusCode === 302) {
-          return res.status(response.statusCode).json({ 
-            redirect: response.headers.location,
-            status: response.statusCode
-          });
+          const redirectUrl = response.headers.location;
+          if (redirectUrl) {
+            // Follow the redirect automatically
+            try {
+              const redirectTargetUrl = new URL(
+                redirectUrl.startsWith('http') ? 
+                  redirectUrl : 
+                  new URL(redirectUrl, targetUrl.toString()).toString()
+              );
+              
+              const redirectProtocol = redirectTargetUrl.protocol === "https:" ? https : http;
+              
+              redirectProtocol.get(redirectTargetUrl.toString(), (redirectResponse) => {
+                // Set appropriate content type
+                res.setHeader("Content-Type", redirectResponse.headers["content-type"] || "text/html");
+                
+                let redirectData = "";
+                redirectResponse.on("data", (chunk) => {
+                  redirectData += chunk;
+                });
+                
+                redirectResponse.on("end", () => {
+                  res.send(redirectData);
+                });
+              }).on("error", (err) => {
+                res.status(500).json({ error: `Redirect failed: ${err.message}` });
+              });
+              
+              return; // End the function here since we're handling the redirect
+            } catch (error) {
+              res.status(500).json({ error: "Failed to follow redirect" });
+              return;
+            }
+          }
         }
         
         // Set appropriate content type
@@ -70,7 +100,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Fetch the URL
           const protocol = url.startsWith('https') ? https : http;
           
-          protocol.get(url, (response) => {
+          const handleResponse = (response, originalUrl) => {
+            // Handle redirects
+            if (response.statusCode === 301 || response.statusCode === 302) {
+              const redirectUrl = response.headers.location;
+              if (redirectUrl && ws.readyState === ws.OPEN) {
+                try {
+                  // Resolve relative URLs
+                  const redirectTargetUrl = new URL(
+                    redirectUrl.startsWith('http') ? 
+                      redirectUrl : 
+                      new URL(redirectUrl, originalUrl).toString()
+                  );
+                  
+                  // Follow the redirect
+                  const redirectProtocol = redirectTargetUrl.protocol === "https:" ? https : http;
+                  redirectProtocol.get(redirectTargetUrl.toString(), (redirectResponse) => {
+                    handleResponse(redirectResponse, redirectTargetUrl.toString());
+                  }).on('error', (err) => {
+                    if (ws.readyState === ws.OPEN) {
+                      ws.send(JSON.stringify({
+                        type: 'ERROR',
+                        message: `Redirect failed: ${err.message}`
+                      }));
+                    }
+                  });
+                  return;
+                } catch (error) {
+                  if (ws.readyState === ws.OPEN) {
+                    ws.send(JSON.stringify({
+                      type: 'ERROR',
+                      message: 'Failed to follow redirect'
+                    }));
+                  }
+                  return;
+                }
+              }
+            }
+            
+            // Handle normal response
             let body = '';
             
             response.on('data', (chunk) => {
@@ -81,13 +149,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
               if (ws.readyState === ws.OPEN) {
                 ws.send(JSON.stringify({
                   type: 'FETCH_RESPONSE',
-                  url: url,
+                  url: originalUrl,
                   status: response.statusCode,
                   contentType: response.headers['content-type'],
                   data: body
                 }));
               }
             });
+          };
+          
+          protocol.get(url, (response) => {
+            handleResponse(response, url);
           }).on('error', (err) => {
             if (ws.readyState === ws.OPEN) {
               ws.send(JSON.stringify({
