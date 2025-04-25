@@ -1,46 +1,125 @@
-import { useState, useRef, FormEvent } from "react";
+import { useState, useRef, FormEvent, useEffect } from "react";
 
 export default function ProxyInterface() {
   const [url, setUrl] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [pageContent, setPageContent] = useState<string>("");
+  const [pageTitle, setPageTitle] = useState<string>("");
+  const [wsConnected, setWsConnected] = useState<boolean>(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const socketRef = useRef<WebSocket | null>(null);
+  const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
 
+  // Connect to WebSocket
+  useEffect(() => {
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    
+    const socket = new WebSocket(wsUrl);
+    socketRef.current = socket;
+    
+    socket.onopen = () => {
+      console.log("Connected to WebSocket server");
+      setWsConnected(true);
+    };
+    
+    socket.onclose = () => {
+      console.log("Disconnected from WebSocket server");
+      setWsConnected(false);
+    };
+    
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        
+        if (data.type === 'FETCH_RESPONSE') {
+          setLoading(false);
+          
+          if (data.status >= 200 && data.status < 300) {
+            // Extract and set page title
+            const titleRegex = /<title>(.*?)<\/title>/i;
+            const titleMatch = titleRegex.exec(data.data);
+            setPageTitle(titleMatch && titleMatch[1] ? titleMatch[1] : "Webpage");
+            
+            // Set the content
+            setPageContent(data.data);
+          } else {
+            setError(`Error loading page: Status ${data.status}`);
+          }
+        } else if (data.type === 'ERROR') {
+          setLoading(false);
+          setError(`Error: ${data.message}`);
+        }
+      } catch (error) {
+        console.error("Error parsing WebSocket message", error);
+      }
+    };
+    
+    socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      setError("Connection error with proxy server");
+    };
+    
+    return () => {
+      socket.close();
+    };
+  }, []);
+
+  // Handle form submission
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+    setHasSubmitted(true);
 
-    // Validate URL format
+    // Validate URL
     if (!url) {
       setError("Please enter a URL to browse");
       return;
     }
 
-    // Make sure URL has http:// or https:// prefix
+    // Clean and process URL
     let processedUrl = url;
     if (!url.startsWith("http://") && !url.startsWith("https://")) {
       processedUrl = "https://" + url;
     }
 
+    setLoading(true);
+
+    // Use the WebSocket to fetch URL
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({
+        type: 'FETCH_URL',
+        url: processedUrl
+      }));
+    } else {
+      // Fallback to API if WebSocket is not connected
+      fetchWithApi(processedUrl);
+    }
+  };
+
+  // Fetch URL using the API endpoint
+  const fetchWithApi = async (urlToFetch: string) => {
     try {
-      // For demo purposes, we're displaying the website in an iframe
-      // In a real proxy service, this would be a server-side request that handles the connection
-      setLoading(true);
+      const response = await fetch(`/api/proxy?url=${encodeURIComponent(urlToFetch)}`);
       
-      // Simulate processing time
-      setTimeout(() => {
-        if (iframeRef.current) {
-          try {
-            iframeRef.current.src = processedUrl;
-          } catch (err) {
-            setError("Unable to access the requested website");
-          }
-        }
-        setLoading(false);
-      }, 1000);
-    } catch (err) {
-      setError("Failed to connect to the proxy service");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to load website");
+      }
+      
+      const data = await response.text();
+      
+      // Extract page title
+      const titleRegex = /<title>(.*?)<\/title>/i;
+      const titleMatch = titleRegex.exec(data);
+      setPageTitle(titleMatch && titleMatch[1] ? titleMatch[1] : "Webpage");
+      
+      setPageContent(data);
+      setLoading(false);
+    } catch (error: any) {
+      setError(error.message || "Failed to load website");
       setLoading(false);
     }
   };
@@ -94,7 +173,35 @@ export default function ProxyInterface() {
             <div className="w-16 h-16 border-4 border-space-accent border-t-transparent rounded-full animate-spin mb-4"></div>
             <p className="text-gray-300">Establishing secure connection...</p>
           </div>
-        ) : !url ? (
+        ) : pageContent && hasSubmitted ? (
+          <div className="w-full h-full overflow-auto">
+            <div className="bg-black/30 p-2 flex items-center">
+              <div className="flex items-center space-x-2 px-3 py-1 bg-space-deep rounded">
+                <i className="fas fa-lock text-green-400 text-xs"></i>
+                <span className="text-gray-300 text-sm truncate max-w-[300px]">
+                  {url}
+                </span>
+              </div>
+              <div className="ml-4 text-white text-sm">
+                {pageTitle}
+              </div>
+            </div>
+            <div 
+              ref={contentRef}
+              className="p-4 bg-white text-black h-full overflow-auto"
+            >
+              <div 
+                className="proxy-content" 
+                dangerouslySetInnerHTML={{ __html: pageContent }}
+                style={{ 
+                  pointerEvents: 'none', // Disable interactions
+                  color: 'black',
+                  backgroundColor: 'white'
+                }}
+              />
+            </div>
+          </div>
+        ) : (
           <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
             <div className="text-5xl text-space-accent mb-6">
               <i className="fas fa-globe"></i>
@@ -107,20 +214,13 @@ export default function ProxyInterface() {
               Simply enter a URL above to get started.
             </p>
           </div>
-        ) : (
-          <iframe
-            ref={iframeRef}
-            className="w-full h-full border-none"
-            title="Proxy Browser"
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-          ></iframe>
         )}
       </div>
 
       <div className="mt-4 text-center text-sm text-gray-400">
         <p>
           <i className="fas fa-shield-alt mr-1"></i> Your connection is secure
-          and private
+          and private {wsConnected && <span className="text-green-400">(WebSocket Connected)</span>}
         </p>
       </div>
     </div>
