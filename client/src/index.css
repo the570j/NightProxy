@@ -1,0 +1,211 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap');
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 20 14.3% 4.1%;
+  --muted: 60 4.8% 95.9%;
+  --muted-foreground: 25 5.3% 44.7%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 14.3% 4.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 14.3% 4.1%;
+  --border: 20 5.9% 90%;
+  --input: 20 5.9% 90%;
+  --primary: 207 90% 54%;
+  --primary-foreground: 211 100% 99%;
+  --secondary: 60 4.8% 95.9%;
+  --secondary-foreground: 24 9.8% 10%;
+  --accent: 60 4.8% 95.9%;
+  --accent-foreground: 24 9.8% 10%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 60 9.1% 97.8%;
+  --ring: 20 14.3% 4.1%;
+  --radius: 0.5rem;
+
+  /* Space Theme Colors */
+  --space-dark: 231 83% 11%;
+  --space-deep: 232 70% 16%;
+  --space-purple: 272 52% 34%;
+  --space-accent: 190 100% 42%;
+  --space-highlight: 252 78% 67%;
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --primary: 207 90% 54%;
+  --primary-foreground: 211 100% 99%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 4.9% 83.9%;
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-gradient-to-b from-space-dark to-space-deep text-white relative min-h-screen overflow-x-hidden;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+/* Star background animation */
+.stars {
+  background-image: 
+      radial-gradient(2px 2px at 20px 30px, white, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 40px 70px, white, rgba(0,0,0,0)),
+      radial-gradient(1px 1px at 90px 40px, white, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 160px 120px, white, rgba(0,0,0,0)),
+      radial-gradient(1px 1px at 230px 190px, white, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 240px 240px;
+  animation: twinkle 4s ease-in-out infinite;
+  opacity: 0.6;
+}
+
+.stars-distant {
+  background-image: 
+      radial-gradient(1px 1px at 100px 150px, white, rgba(0,0,0,0)),
+      radial-gradient(1px 1px at 200px 220px, white, rgba(0,0,0,0)),
+      radial-gradient(1px 1px at 300px 300px, white, rgba(0,0,0,0)),
+      radial-gradient(1px 1px at 400px 40px, white, rgba(0,0,0,0)),
+      radial-gradient(1px 1px at 500px 400px, white, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 500px 500px;
+  animation: twinkle 6s ease-in-out infinite;
+  opacity: 0.4;
+}
+
+/* Glassmorphism effects */
+.glass {
+  background: rgba(12, 20, 69, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gradient-border {
+  position: relative;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 0.5rem;
+  padding: 2px;
+  background: linear-gradient(45deg, hsl(var(--space-accent)), hsl(var(--space-highlight)));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+/* Utility classes */
+.font-poppins {
+  font-family: 'Poppins', sans-serif;
+}
+
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-twinkle {
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Smooth scrolling for the page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Space theme colors */
+.bg-space-dark {
+  background-color: hsl(var(--space-dark));
+}
+
+.bg-space-deep {
+  background-color: hsl(var(--space-deep));
+}
+
+.text-space-accent {
+  color: hsl(var(--space-accent));
+}
+
+.text-space-highlight {
+  color: hsl(var(--space-highlight));
+}
+
+.bg-space-accent {
+  background-color: hsl(var(--space-accent));
+}
+
+.bg-space-highlight {
+  background-color: hsl(var(--space-highlight));
+}
+
+.from-space-accent {
+  --tw-gradient-from: hsl(var(--space-accent));
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, hsla(var(--space-accent), 0));
+}
+
+.to-space-highlight {
+  --tw-gradient-to: hsl(var(--space-highlight));
+}
+
+.from-space-accent\/20 {
+  --tw-gradient-from: hsla(var(--space-accent), 0.2);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, hsla(var(--space-accent), 0));
+}
+
+.to-space-highlight\/20 {
+  --tw-gradient-to: hsla(var(--space-highlight), 0.2);
+}
+
+.from-space-accent\/30 {
+  --tw-gradient-from: hsla(var(--space-accent), 0.3);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, hsla(var(--space-accent), 0));
+}
+
+.to-space-highlight\/30 {
+  --tw-gradient-to: hsla(var(--space-highlight), 0.3);
+}
