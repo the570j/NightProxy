@@ -50,24 +50,6 @@ export default function HeroSection() {
                       <feGaussianBlur stdDeviation="8" result="blur" />
                       <feComposite in="SourceGraphic" in2="blur" operator="over" />
                     </filter>
-                    
-                    {/* Rocket ship flame gradient */}
-                    <linearGradient id="flameGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor="#FDE68A" />
-                      <stop offset="70%" stopColor="#F97316" />
-                      <stop offset="100%" stopColor="#DC2626" />
-                    </linearGradient>
-                    
-                    {/* Animation for rocket orbit */}
-                    <animateTransform
-                      id="orbitAnimation"
-                      attributeName="transform"
-                      type="rotate"
-                      from="0 100 100"
-                      to="360 100 100"
-                      dur="20s"
-                      repeatCount="indefinite"
-                    />
                   </defs>
                   
                   {/* Moon */}
@@ -84,82 +66,6 @@ export default function HeroSection() {
                   
                   {/* Subtle glow around the moon */}
                   <circle cx="100" cy="100" r="95" fill="none" stroke="#E2E8F0" strokeWidth="2" opacity="0.2" filter="url(#glow)" />
-                  
-                  {/* Spiral orbital path (more dynamic) */}
-                  <path d="M100,10 Q160,40 170,100 T100,190 T30,100 T100,10" 
-                        fill="none" 
-                        stroke="#E2E8F0" 
-                        strokeWidth="1" 
-                        strokeDasharray="2 3" 
-                        opacity="0.2" />
-                  
-                  {/* Rocket Ship Animation with Motion Path */}
-                  <g id="rocket" transform="translate(0,0)">
-                    {/* The rocket follows a custom path animation */}
-                    <animateMotion
-                      path="M100,15 Q165,40 180,100 Q165,160 100,185 Q35,160 20,100 Q35,40 100,15 Z"
-                      dur="20s"
-                      repeatCount="indefinite"
-                      rotate="auto"
-                    />
-                    
-                    {/* Rocket with slight upward angle */}
-                    <g transform="translate(0, 0) rotate(45)">
-                      {/* Rocket body */}
-                      <path d="M0,0 L-4,10 L4,10 Z" fill="#F43F5E" />
-                      <rect x="-4" y="10" width="8" height="15" fill="#F43F5E" />
-                      
-                      {/* Rocket windows */}
-                      <circle cx="0" cy="15" r="2" fill="#E2E8F0" />
-                      
-                      {/* Rocket fins */}
-                      <path d="M-4,25 L-8,30 L-4,25 Z" fill="#F43F5E" />
-                      <path d="M4,25 L8,30 L4,25 Z" fill="#F43F5E" />
-                      
-                      {/* Rocket flame with animation */}
-                      <path d="M-3,25 L0,35 L3,25 Z" fill="url(#flameGradient)">
-                        <animate
-                          attributeName="d"
-                          values="M-3,25 L0,32 L3,25 Z; M-3,25 L0,38 L3,25 Z; M-3,25 L0,32 L3,25 Z"
-                          dur="0.5s"
-                          repeatCount="indefinite"
-                        />
-                      </path>
-                    </g>
-                  </g>
-                  
-                  {/* Second rocket for additional movement pattern */}
-                  <g id="rocket2" transform="translate(0,0) scale(0.8)">
-                    <animateMotion
-                      path="M20,100 Q70,30 100,80 Q130,130 180,100 Q130,70 100,120 Q70,170 20,100 Z"
-                      dur="12s"
-                      repeatCount="indefinite"
-                      rotate="auto"
-                    />
-                    
-                    <g transform="translate(0, 0) rotate(45)">
-                      {/* Rocket body */}
-                      <path d="M0,0 L-3,8 L3,8 Z" fill="#3B82F6" />
-                      <rect x="-3" y="8" width="6" height="12" fill="#3B82F6" />
-                      
-                      {/* Rocket windows */}
-                      <circle cx="0" cy="12" r="1.5" fill="#E2E8F0" />
-                      
-                      {/* Rocket fins */}
-                      <path d="M-3,20 L-6,24 L-3,20 Z" fill="#3B82F6" />
-                      <path d="M3,20 L6,24 L3,20 Z" fill="#3B82F6" />
-                      
-                      {/* Rocket flame */}
-                      <path d="M-2,20 L0,27 L2,20 Z" fill="url(#flameGradient)">
-                        <animate
-                          attributeName="d"
-                          values="M-2,20 L0,25 L2,20 Z; M-2,20 L0,28 L2,20 Z; M-2,20 L0,25 L2,20 Z"
-                          dur="0.3s"
-                          repeatCount="indefinite"
-                        />
-                      </path>
-                    </g>
-                  </g>
                 </svg>
               </div>
             </div>
