@@ -193,17 +193,51 @@ export default function ProxyInterface() {
               <div 
                 className="proxy-content" 
                 dangerouslySetInnerHTML={{ 
-                  __html: pageContent.replace(
-                    /<(script|link|img|iframe)[^>]+(src|href)="(?!(http|https):\/\/)/g, 
-                    (match, tag, attr) => {
-                      // Replace relative URLs with absolute URLs
-                      const baseUrl = new URL(url.startsWith('http') ? url : `https://${url}`);
-                      return match.replace(
-                        `${attr}="`, 
-                        `${attr}="${baseUrl.origin}/`
-                      );
-                    }
-                  ) 
+                  __html: pageContent
+                    // Fix relative URLs to absolute
+                    .replace(
+                      /<(script|link|img|iframe|source)[^>]+(src|href)="(?!\/\/|http|https|data:|blob:)([^"]+)"/g, 
+                      (match, tag, attr, path) => {
+                        // Replace relative URLs with absolute URLs
+                        const baseUrl = new URL(url.startsWith('http') ? url : `https://${url}`);
+                        return match.replace(
+                          `${attr}="${path}"`, 
+                          `${attr}="${baseUrl.origin}/${path.startsWith('/') ? path.slice(1) : path}"`
+                        );
+                      }
+                    )
+                    // Fix URLs with double slashes but no protocol (//example.com/image.jpg)
+                    .replace(
+                      /<(script|link|img|iframe|source)[^>]+(src|href)="\/\/([^"]+)"/g,
+                      (match, tag, attr, path) => {
+                        return match.replace(
+                          `${attr}="//${path}"`,
+                          `${attr}="https://${path}"`
+                        );
+                      }
+                    )
+                    // Proxy all complete URLs through our proxy-resource endpoint
+                    .replace(
+                      /<(img|script|link|iframe|source)[^>]+(src|href)="(https?:\/\/[^"]+)"/g,
+                      (match, tag, attr, fullUrl) => {
+                        // Don't proxy data: URLs
+                        if (fullUrl.startsWith('data:')) return match;
+                        return match.replace(
+                          `${attr}="${fullUrl}"`,
+                          `${attr}="/api/proxy-resource?url=${encodeURIComponent(fullUrl)}"`
+                        );
+                      }
+                    )
+                    // Proxy all background images
+                    .replace(
+                      /background(-image)?:\s*url\(['"]?(https?:\/\/[^'"\)]+)['"]?\)/g,
+                      (match, prop, url) => {
+                        return match.replace(
+                          url,
+                          `/api/proxy-resource?url=${encodeURIComponent(url)}`
+                        );
+                      }
+                    )
                 }}
                 style={{ 
                   pointerEvents: 'none', // Disable interactions

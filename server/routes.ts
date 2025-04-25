@@ -7,7 +7,73 @@ import https from "https";
 import http from "http";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Add API endpoint for proxying requests
+  // Add API endpoint for proxying resources (images, CSS, JS, etc.)
+  app.get("/api/proxy-resource", async (req: Request, res: Response) => {
+    const { url } = req.query;
+    
+    if (!url || typeof url !== "string") {
+      return res.status(400).json({ error: "URL parameter is required" });
+    }
+    
+    try {
+      // Make sure URL is valid
+      let targetUrl: URL;
+      try {
+        targetUrl = new URL(url);
+      } catch (error) {
+        return res.status(400).json({ error: "Invalid URL" });
+      }
+      
+      // Determine protocol to use
+      const protocol = targetUrl.protocol === "https:" ? https : http;
+      
+      // Setup browser-like headers
+      const options = {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Accept': '*/*',
+          'Accept-Language': 'en-US,en;q=0.5',
+          'Referer': targetUrl.origin
+        }
+      };
+      
+      // Stream the resource directly
+      protocol.get(targetUrl.toString(), options, (response) => {
+        // Check if we got redirected
+        if (response.statusCode === 301 || response.statusCode === 302) {
+          const redirectUrl = response.headers.location;
+          if (redirectUrl) {
+            try {
+              const redirectTargetUrl = new URL(
+                redirectUrl.startsWith('http') ? 
+                  redirectUrl : 
+                  new URL(redirectUrl, targetUrl.toString()).toString()
+              );
+              
+              // Redirect the browser to the new proxy-resource URL
+              return res.redirect(`/api/proxy-resource?url=${encodeURIComponent(redirectTargetUrl.toString())}`);
+            } catch (error) {
+              return res.status(500).json({ error: "Failed to follow redirect" });
+            }
+          }
+        }
+        
+        // Pass through all headers from the original response
+        Object.keys(response.headers).forEach(header => {
+          res.setHeader(header, response.headers[header] || '');
+        });
+        
+        // Stream the data directly to the client
+        response.pipe(res);
+      }).on("error", (err) => {
+        res.status(500).json({ error: err.message });
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to proxy resource" });
+    }
+  });
+  
+  // Add API endpoint for proxying web pages
   app.get("/api/proxy", async (req: Request, res: Response) => {
     const url = req.query.url as string;
     
